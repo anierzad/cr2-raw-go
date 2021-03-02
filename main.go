@@ -30,8 +30,11 @@ func main() {
 	for {
 
 		// Print details about ifd.
-		fmt.Println("Entries in IFD:", ir.Count())
-		fmt.Println("Address of next IFD:", ir.NextIfdOffset())
+		entries, _ := ir.GetIfdEntries()
+
+		for k, e := range entries {
+			fmt.Printf("%v: %v\n", k, e)
+		}
 
 		// Check there is another ifd to read.
 		if ir.NextIfdOffset() == 0 {

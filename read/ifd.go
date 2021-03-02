@@ -27,6 +27,23 @@ func (ir ifdReader) Count() int {
 	return int(binary.LittleEndian.Uint16(bytes))
 }
 
+func (ir ifdReader) GetIfdEntries() (map[string]string, error) {
+	entries := make(map[string]string)
+
+	for i := 0; i < ir.Count(); i++ {
+		offset := ir.actualOffset(2 + (entryLength * i))
+
+		entry := newIfdEntryReader(offset, ir.data)
+
+		tag, value, err := entry.GetEntryInfo()
+		if err == nil {
+			entries[tag] = value
+		}
+	}
+
+	return entries, nil
+}
+
 func (ir ifdReader) NextIfdOffset() int {
 	start := ir.actualOffset(2 + (ir.Count() * entryLength))
 	end := ir.actualOffset(start + 4)
