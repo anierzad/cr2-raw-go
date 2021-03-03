@@ -3,12 +3,17 @@ package read
 import (
 	"encoding/binary"
 	"fmt"
+	"strconv"
 )
 
 var (
 	tagIds = map[int]string{
 		271: "Exif.Image.Make",
 		272: "Exif.Image.Model",
+		256: "Exif.Image.ImageWidth",
+		257: "Exif.Image.ImageLength",
+		40962: "Exif.Photo.PixelXDimension",
+		40963: "Exif.Photo.PixelYDimension",
 	}
 )
 
@@ -49,13 +54,18 @@ func (ier ifdEntryReader) GetEntryInfo() (string, string, error) {
 	// Try retrieve tag value.
 	switch tagType {
 
-	// String.
+	// string.
 	case 2:
 		start := ier.getTagValue()
 		end := start + ier.getTagCount()
 		bytes := (*ier.data)[start:end]
 
 		infoValue = string(bytes)
+
+	// ushort, ulong
+	case 3, 4, 8, 9:
+		infoValue = strconv.Itoa(ier.getTagValue())
+
 	default:
 		return infoName,
 			infoValue,
